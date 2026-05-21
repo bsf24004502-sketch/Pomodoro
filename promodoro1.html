@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pomodoro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      background: #111113;
+      color: #ededed;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 2.5rem 14px;
+      display: flex;
+      justify-content: center;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    .wrap {
+      max-width: 395px;
+      width: 100%;
+    }
+
+    .card {
+      border: 1px solid #2c2c2e;
+      background: #1c1c1e;
+      border-radius: 14px;
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 45px 20px;
+    }
+
+    .timer {
+      font-size: 4.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #ff4d4d;
+      letter-spacing: -2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    body.brk .timer {
+      color: #4dffb4;
+    }
+
+    .round {
+      color: #6b6b6b;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .pbar {
+      background: #2c2c2e;
+      border-radius: 3px;
+      margin-top: 35px;
+      overflow: hidden;
+      height: 5px;
+    }
+
+    .bar {
+      width: 100%;
+      height: 100%;
+      background: #ff4d4d;
+    }
+
+    body.brk .bar {
+      background: #4dffb4;
+    }
+
+    .controls {
+      display: flex;
+      margin-bottom: 25px;
+      gap: 10px;
+    }
+
+    .btn {
+      background: #1c1c1e;
+      color: #ededed;
+      border-radius: 8px;
+      padding: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      border: 1px solid #2c2c2e;
+      font-size: 13px;
+    }
+
+    .btn:hover {
+      background: #26262b;
+    }
+
+    .btn-main {
+      font-weight: 700;
+      color: #111113;
+      background: #ff4d4d;
+      border-color: #ff4d4d;
+    }
+
+    body.brk .btn-main {
+      background: #4dffb4;
+      border-color: #4dffb4;
+    }
+
+    .settings {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .box {
+      border: 1px solid #2c2c2e;
+      flex: 1;
+      background: #1c1c1e;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .label {
+      font-size: 10px;
+      color: #6b6b6b;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .row button {
+      background: #26262b;
+      color: #ededed;
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      font-size: 15px;
+      cursor: pointer;
+      border: 1px solid #3a3a3c;
+    }
+
+    .row .val {
+      font-weight: 600;
+      font-size: 17px;
+    }
+
+    .log-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      align-items: center;
+    }
+
+    .log-head h3 {
+      font-size: 11px;
+      color: #6b6b6b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .clear {
+      background: none;
+      color: #555559;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+    }
+
+    .clear:hover {
+      color: #ff4d4d;
+    }
+
+    .entries {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .entry {
+      background: #1c1c1e;
+      border: 1px solid #2c2c2e;
+      border-radius: 6px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+    }
+
+    .entry.brk {
+      border-left: 3px solid #4dffb4;
+    }
+
+    .entry:not(.brk) {
+      border-left: 3px solid #ff4d4d;
+    }
+
+    .entry .t {
+      color: #555559;
+      font-size: 11px;
+    }
+
+    .empty {
+      color: #555559;
+      text-align: center;
+      padding: 20px 0;
+      font-size: 13px;
+    }
+
+    .top {
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-weight: 700;
+      color: #ff4d4d;
+      font-size: 1.05rem;
+    }
+
+    body.brk .logo {
+      color: #4dffb4;
+    }
+
+    .tag {
+      background: #1c1c1e;
+      font-size: 11px;
+      padding: 5px 13px;
+      border-radius: 20px;
+      color: #6b6b6b;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: 1px solid #2c2c2e;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="logo">pomodoro.</div>
+      <div class="tag" id="tag">focus</div>
+    </div>
+
+    <div class="card">
+      <div class="timer" id="timer">25:00</div>
+      <div class="round" id="round">round 1</div>
+      <div class="pbar">
+        <div class="bar" id="bar"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="reset">Reset</button>
+      <button class="btn btn-main" id="start">Start</button>
+      <button class="btn" id="skip">Skip</button>
+    </div>
+
+    <div class="settings">
+      <div class="box">
+        <div class="label">Focus time</div>
+        <div class="row">
+          <button id="fMinus">−</button>
+          <span class="val" id="fVal">25</span>
+          <button id="fPlus">+</button>
+        </div>
+      </div>
+      <div class="box">
+        <div class="label">Break time</div>
+        <div class="row">
+          <button id="bMinus">−</button>
+          <span class="val" id="bVal">5</span>
+          <button id="bPlus">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-head">
+      <h3>History</h3>
+      <button class="clear" id="clear">clear logs</button>
+    </div>
+    <div class="entries" id="entries">
+      <div class="empty" id="empty">No sessions done today.</div>
+    </div>
+  </div>
+
+  <audio id="alert" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-600.mp3" preload="auto"></audio>
+
+  <script>
+    var fMins = 25;
+    var bMins = 5;
+    var round = 1;
+    var total = 1500;
+    var timeLeft = 1500;
+    
+    var running = false;
+    var isBreak = false;
+    var iv = null;
+    var log = [];
+
+    window.onload = function() {
+      var today = new Date().toDateString();
+      if (localStorage.getItem('pomo_date') !== today) {
+        localStorage.setItem('pomo_date', today);
+        localStorage.setItem('pomo_log', '[]');
+      } else {
+        var saved = localStorage.getItem('pomo_log');
+        if (saved) log = JSON.parse(saved);
+      }
+      showLog();
+      updateDisplay();
+    };
+
+    function updateDisplay() {
+      var m = Math.floor(timeLeft / 60);
+      var s = timeLeft % 60;
+      var ts = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+      
+      document.getElementById('timer').textContent = ts;
+      document.title = ts + ' — pomodoro';
+      document.getElementById('round').textContent = 'round ' + round;
+      document.getElementById('tag').textContent = isBreak ? 'break' : 'focus';
+      document.getElementById('bar').style.width = ((timeLeft / total) * 100) + '%';
+      
+      if (isBreak) {
+        document.body.classList.add('brk');
+      } else {
+        document.body.classList.remove('brk');
+      }
+    }
+
+    function toggle() {
+      var btn = document.getElementById('start');
+      if (running) {
+        clearInterval(iv);
+        running = false;
+        btn.textContent = 'Resume';
+      } else {
+        running = true;
+        btn.textContent = 'Pause';
+        iv = setInterval(function() {
+          if (timeLeft <= 0) {
+            clearInterval(iv);
+            running = false;
+            btn.textContent = 'Start';
+            
+            var timeStr = Math.floor(total / 60) + ':00';
+            var lbl = timeStr + ' ' + (isBreak ? 'break' : 'focus');
+            var now = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+            
+            log.push({ label: lbl, type: isBreak ? 'break' : 'focus', at: now });
+            localStorage.setItem('pomo_log', JSON.stringify(log));
+            showLog();
+            
+            try {
+              var sound = document.getElementById('alert');
+              sound.currentTime = 0;
+              sound.play();
+            } catch (e) {
+              console.warn("Audio skipped because of browser playback blocks", e);
+            }
+
+            if (!isBreak) {
+              isBreak = true;
+              total = bMins * 60;
+              timeLeft = bMins * 60;
+            } else {
+              isBreak = false;
+              round++;
+              total = fMins * 60;
+              timeLeft = fMins * 60;
+            }
+
+            updateDisplay();
+            toggle();
+            return;
+          }
+          timeLeft--;
+          updateDisplay();
+        }, 1000);
+      }
+    }
+
+    function skip() {
+      clearInterval(iv);
+      running = false;
+      document.getElementById('start').textContent = 'Start';
+      if (!isBreak) {
+        isBreak = true;
+        total = bMins * 60;
+        timeLeft = bMins * 60;
+      } else {
+        isBreak = false;
+        round++;
+        total = fMins * 60;
+        timeLeft = fMins * 60;
+      }
+      updateDisplay();
+    }
+
+    function reset() {
+      clearInterval(iv);
+      running = false;
+      isBreak = false;
+      round = 1;
+      total = fMins * 60;
+      timeLeft = fMins * 60;
+      document.getElementById('start').textContent = 'Start';
+      updateDisplay();
+    }
+
+    function showLog() {
+      var box = document.getElementById('entries');
+      var emp = document.getElementById('empty');
+      box.querySelectorAll('.entry').forEach(function(el) { el.remove(); });
+      
+      if (log.length === 0) {
+        emp.style.display = 'block';
+        return;
+      }
+      emp.style.display = 'none';
+      
+      var rev = log.slice().reverse();
+      rev.forEach(function(s) {
+        var el = document.createElement('div');
+        el.className = 'entry' + (s.type === 'break' ? ' brk' : '');
+        el.innerHTML = '<span>✓ ' + s.label + '</span><span class="t">' + s.at + '</span>';
+        box.appendChild(el);
+      });
+    }
+
+    document.getElementById('start').onclick = toggle;
+    document.getElementById('skip').onclick = skip;
+    document.getElementById('reset').onclick = reset;
+    
+    document.getElementById('clear').onclick = function() {
+      log = [];
+      localStorage.setItem('pomo_log', '[]');
+      showLog();
+    };
+
+    document.getElementById('fMinus').onclick = function() {
+      if (fMins > 1) {
+        fMins--;
+        document.getElementById('fVal').textContent = fMins;
+        if (!isBreak && !running) { total = fMins * 60; timeLeft = fMins * 60; updateDisplay(); }
+      }
+    };
+    document.getElementById('fPlus').onclick = function() {
+      if (fMins < 60) {
+        fMins++;
+        document.getElementById('fVal').textContent = fMins;
+        if (!isBreak && !running) { total = fMins * 60; timeLeft = fMins * 60; updateDisplay(); }
+      }
+    };
+    document.getElementById('bMinus').onclick = function() {
+      if (bMins > 1) {
+        bMins--;
+        document.getElementById('bVal').textContent = bMins;
+        if (isBreak && !running) { total = bMins * 60; timeLeft = bMins * 60; updateDisplay(); }
+      }
+    };
+    document.getElementById('bPlus').onclick = function() {
+      if (bMins < 30) {
+        bMins++;
+        document.getElementById('bVal').textContent = bMins;
+        if (isBreak && !running) { total = bMins * 60; timeLeft = bMins * 60; updateDisplay(); }
+      }
+    };
+  </script>
+</body>
+</html>
